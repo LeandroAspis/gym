@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ADN — Leandro Aspis</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --naranja: #E8820C;
+    --naranja-oscuro: #B5620A;
+    --negro: #0A0A0A;
+    --gris-oscuro: #141414;
+    --gris-medio: #1E1E1E;
+    --gris-borde: #2A2A2A;
+    --blanco: #F0EDE8;
+    --blanco-suave: #C8C4BC;
+    --rojo: #E03030;
+    --verde: #2ECC71;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: var(--negro);
+    color: var(--blanco);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  .pantalla {
+    position: fixed; inset: 0;
+    display: none;
+    flex-direction: column;
+    background: var(--negro);
+    overflow: hidden;
+  }
+  .pantalla.activa { display: flex; }
+
+  /* HEADER */
+  .header {
+    background: var(--gris-oscuro);
+    border-bottom: 2px solid var(--naranja);
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    min-height: 60px;
+  }
+  .header-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--naranja);
+    line-height: 1;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: var(--blanco-suave);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .btn-icono {
+    background: none; border: none; cursor: pointer;
+    color: var(--blanco); font-size: 22px; padding: 6px;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 44px; min-height: 44px; border-radius: 8px;
+  }
+  .btn-icono:active { background: var(--gris-borde); }
+
+  .contenido {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* HOME */
+  #home .banner {
+    background: linear-gradient(135deg, var(--gris-oscuro) 0%, #1a1000 100%);
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--gris-borde);
+  }
+  #home .saludo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 2px;
+    color: var(--blanco);
+    line-height: 1;
+  }
+  #home .saludo span { color: var(--naranja); }
+  #home .info-atleta {
+    display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .chip {
+    background: var(--gris-borde);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--blanco-suave);
+  }
+  .chip strong { color: var(--naranja); }
+
+  .dias-lista {
+    padding: 20px 16px;
+    display: flex; flex-direction: column;
+    gap: 12px;
+  }
+  .dia-card {
+    background: var(--gris-medio);
+    border: 1px solid var(--gris-borde);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.1s;
+    -webkit-user-select: none; user-select: none;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .dia-card:active { transform: scale(0.98); border-color: var(--naranja); }
+  .dia-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    color: var(--naranja);
+    line-height: 1;
+    flex-shrink: 0;
+    min-width: 60px;
+    text-align: center;
+  }
+  .dia-info { flex: 1; }
+  .dia-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--blanco);
+  }
+  .dia-grupo {
+    font-size: 12px;
+    color: var(--blanco-suave);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .dia-flecha {
+    color: var(--naranja);
+    font-size: 24px;
+    opacity: 0.6;
+  }
+
+  .seccion-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--naranja);
+    padding: 20px 16px 10px;
+    text-transform: uppercase;
+  }
+
+  /* SECCIÓN DE EJERCICIOS */
+  .seccion-bloque { margin: 0; }
+  .seccion-header {
+    background: var(--gris-oscuro);
+    padding: 10px 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--naranja);
+    text-transform: uppercase;
+    border-top: 1px solid var(--gris-borde);
+    border-bottom: 1px solid var(--gris-borde);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .ejercicio-item {
+    background: var(--gris-medio);
+    border-bottom: 1px solid var(--gris-borde);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ej-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .ej-nombre {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blanco);
+    line-height: 1.3;
+    flex: 1;
+  }
+  .btn-video, a.btn-video {
+    background: var(--naranja);
+    color: var(--negro);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    padding: 6px 8px;
+    cursor: pointer;
+    min-width: 40px; min-height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+  }
+  .btn-video:active, a.btn-video:active { background: var(--naranja-oscuro); }
+
+  .ej-meta {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .meta-badge {
+    background: var(--gris-borde);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    color: var(--blanco-suave);
+  }
+  .meta-badge span { color: var(--naranja); font-weight: 600; }
+
+  /* Badge de tiempo clickeable */
+  .meta-badge.tiempo-clickeable {
+    background: rgba(232,130,12,0.15);
+    border: 1px solid var(--naranja);
+    color: var(--naranja);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .meta-badge.tiempo-clickeable:active {
+    background: var(--naranja);
+    color: var(--negro);
+  }
+  .meta-badge.tiempo-clickeable span { color: inherit; }
+
+  /* CONTROLES DE PESO */
+  .ej-pesos-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ej-peso-row {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--gris-oscuro);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .ej-peso-label {
+    font-size: 11px;
+    color: var(--blanco-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
+    line-height: 1.2;
+  }
+  .ej-peso-label strong { color: var(--naranja); display: block; font-size: 12px; }
+  .ej-peso-control {
+    display: flex; align-items: center; gap: 6px;
+    margin-left: auto;
+  }
+  .btn-peso {
+    background: var(--gris-borde);
+    border: 1px solid var(--gris-borde);
+    border-radius: 8px;
+    color: var(--naranja);
+    font-size: 20px;
+    font-weight: bold;
+    width: 40px; height: 40px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-peso:active { background: var(--naranja); color: var(--negro); }
+  .peso-valor {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--blanco);
+    min-width: 60px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  .peso-unidad {
+    font-size: 12px;
+    color: var(--blanco-suave);
+  }
+  .peso-sugerido {
+    font-size: 10px;
+    color: var(--naranja);
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  /* BOTONES DE DESCANSO */
+  .ej-timer-btns {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .btn-descanso {
+    background: var(--gris-borde);
+    border: none; border-radius: 8px;
+    color: var(--blanco-suave);
+    font-size: 12px;
+    padding: 8px 14px;
+    cursor: pointer;
+    min-height: 38px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+  }
+  .btn-descanso:active { background: var(--naranja); color: var(--negro); }
+
+  /* TIMER FLOTANTE */
+  #timer-flotante {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    background: var(--gris-oscuro);
+    border: 2px solid var(--naranja);
+    border-radius: 16px;
+    padding: 14px 18px;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 160px;
+    box-shadow: 0 8px 32px rgba(232,130,12,0.3);
+  }
+  #timer-flotante.visible { display: flex; }
+  .timer-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--naranja);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .timer-display.urgente { color: var(--rojo); animation: pulso 0.5s infinite; }
+  @keyframes pulso { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .timer-label {
+    font-size: 11px;
+    color: var(--blanco-suave);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    max-width: 200px;
+    line-height: 1.3;
+  }
+  .timer-btns { display: flex; gap: 8px; }
+  .btn-timer {
+    background: var(--gris-borde); border: none;
+    border-radius: 8px; color: var(--blanco);
+    font-size: 14px; padding: 6px 10px;
+    cursor: pointer; min-width: 44px; min-height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+  }
+  .btn-timer:active { background: var(--naranja); color: var(--negro); }
+  #btn-cerrar-timer {
+    position: absolute; top: 6px; right: 8px;
+    background: none; border: none; color: var(--blanco-suave);
+    font-size: 16px; cursor: pointer; padding: 4px;
+    min-width: 30px; min-height: 30px;
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--naranja); color: var(--negro);
+    border-radius: 20px; padding: 8px 20px;
+    font-weight: 600; font-size: 14px;
+    z-index: 9999; opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none; white-space: nowrap;
+  }
+  #toast.visible { opacity: 1; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gris-borde); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ PANTALLA HOME ══════════════════════ -->
+<div id="home" class="pantalla activa">
+  <div class="header">
+    <div>
+      <div class="header-titulo">ADN TRAINING</div>
+      <div class="header-sub">Leandro Aspis</div>
+    </div>
+    <div style="min-width:44px;"></div>
+  </div>
+  <div class="contenido">
+    <div class="banner">
+      <div class="saludo">HOLA, <span>LEANDRO</span></div>
+      <div class="info-atleta">
+        <div class="chip">Ganancia de masa muscular</div>
+        <div class="chip"><strong>89</strong> kg</div>
+        <div class="chip"><strong>1.87</strong> m</div>
+      </div>
+    </div>
+
+    <div class="seccion-titulo">ELEGÍ TU DÍA</div>
+    <div class="dias-lista">
+      <div class="dia-card" onclick="abrirDia(1)">
+        <div class="dia-num">1</div>
+        <div class="dia-info">
+          <div class="dia-label">DÍA 1</div>
+          <div class="dia-grupo">Inferior y Abs</div>
+        </div>
+        <div class="dia-flecha">›</div>
+      </div>
+      <div class="dia-card" onclick="abrirDia(2)">
+        <div class="dia-num">2</div>
+        <div class="dia-info">
+          <div class="dia-label">DÍA 2</div>
+          <div class="dia-grupo">Superior y Abs</div>
+        </div>
+        <div class="dia-flecha">›</div>
+      </div>
+      <div class="dia-card" onclick="abrirDia(3)">
+        <div class="dia-num">3</div>
+        <div class="dia-info">
+          <div class="dia-label">DÍA 3</div>
+          <div class="dia-grupo">Torso, Piernas y Abs</div>
+        </div>
+        <div class="dia-flecha">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PANTALLA DÍA ══════════════════════ -->
+<div id="pantalla-dia" class="pantalla">
+  <div class="header">
+    <button class="btn-icono" onclick="volverHome()">←</button>
+    <div style="flex:1;text-align:center;">
+      <div class="header-titulo" id="titulo-dia">DÍA 1</div>
+      <div class="header-sub" id="subtitulo-dia">INFERIOR Y ABS</div>
+    </div>
+    <div style="min-width:44px;"></div>
+  </div>
+  <div class="contenido" id="contenido-dia"></div>
+</div>
+
+<!-- ══════════════════════ TIMER FLOTANTE ══════════════════════ -->
+<div id="timer-flotante">
+  <button id="btn-cerrar-timer" onclick="cerrarTimer()">✕</button>
+  <div class="timer-label" id="timer-label">DESCANSANDO</div>
+  <div class="timer-display" id="timer-display">1:30</div>
+  <div class="timer-btns">
+    <button class="btn-timer" id="btn-pausar-timer" onclick="pausarTimer()">⏸</button>
+    <button class="btn-timer" onclick="sumarTimer(15)">+15s</button>
+    <button class="btn-timer" onclick="sumarTimer(30)">+30s</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// DATOS DE LA RUTINA — 3 DÍAS
+// ══════════════════════════════════════════════════════
+
+const RUTINA = {
+  1: {
+    titulo: 'DÍA 1',
+    grupo: 'INFERIOR Y ABS',
+    secciones: [
+      {
+        nombre: 'ENTRADA EN CALOR',
+        icono: '🔥',
+        ejercicios: [
+          { id: 'd1_ec_1', nombre: 'Caminata o Bici', tiempo: "10'", tipo: 'tiempo' },
+          { id: 'd1_ec_2', nombre: 'Lubricación y Mov. Articular', tiempo: "5'", tipo: 'tiempo' },
+        ]
+      },
+      {
+        nombre: 'ACTIVACIÓN ZONA MEDIA',
+        icono: '⚡',
+        ejercicios: [
+          { id: 'd1_az_1', nombre: 'Hollow', tiempo: '15"', series: 2, mic: "1'", mac: "1'", tipo: 'tiempo',
+            video: 'https://youtube.com/shorts/rG2SUbFuClw' },
+          { id: 'd1_az_2', nombre: 'Hollow Inverso', tiempo: '15"', series: 2, mic: "1'", mac: "1'", tipo: 'tiempo',
+            video: 'https://www.youtube.com/watch?v=CFPVWnTWbnU' },
+        ]
+      },
+      {
+        nombre: 'PARTE PRINCIPAL',
+        icono: '💪',
+        ejercicios: [
+          { id: 'd1_pp_1', nombre: 'Puente de Glúteo en Suelo / Hip Thrust en Máquina/Banco',
+            series: 4, reps: 12, kg: '5/7.5', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtu.be/g58xAYch4dA' },
+          { id: 'd1_pp_2', nombre: 'Sentadilla a Banco/Smith con Referencia de Banco/Cajón',
+            series: 4, reps: 12, kg: '5/7.5', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://www.youtube.com/shorts/ScvZnl8pqO4' },
+          { id: 'd1_pp_3', nombre: 'Camilla o Sillón Isquios',
+            series: 4, reps: 12, kg: '20/25', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://www.youtube.com/shorts/B6t8MvbTtew' },
+          { id: 'd1_pp_4', nombre: 'Elevación de Talón con Mancuernas o Máquina',
+            series: 4, reps: 12, kg: '16/20', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtu.be/Li6kvJp_v_g' },
+        ]
+      },
+      {
+        nombre: 'PARTE PRINCIPAL ABDOMINALES',
+        icono: '🎯',
+        ejercicios: [
+          { id: 'd1_ab_1', nombre: 'Flexión de Tronco en Suelo / Encogimiento Acostado',
+            series: 3, reps: 10, mic: "1'", mac: "2'", tipo: 'series',
+            video: 'https://youtu.be/rEw9YIM8rmA' },
+          { id: 'd1_ab_2', nombre: 'Hollow', tiempo: '30"', series: 3, mic: "1'", mac: "2'", tipo: 'tiempo',
+            video: 'https://youtube.com/shorts/rG2SUbFuClw' },
+        ]
+      },
+    ]
+  },
+  2: {
+    titulo: 'DÍA 2',
+    grupo: 'SUPERIOR Y ABS',
+    secciones: [
+      {
+        nombre: 'ENTRADA EN CALOR',
+        icono: '🔥',
+        ejercicios: [
+          { id: 'd2_ec_1', nombre: 'Caminata o Bici', tiempo: "10'", tipo: 'tiempo' },
+          { id: 'd2_ec_2', nombre: 'Lubricación y Mov. Articular', tiempo: "5'", tipo: 'tiempo' },
+        ]
+      },
+      {
+        nombre: 'ACTIVACIÓN ZONA MEDIA',
+        icono: '⚡',
+        ejercicios: [
+          { id: 'd2_az_1', nombre: 'Hollow', tiempo: '15"', series: 2, mic: "1'", mac: "1'", tipo: 'tiempo',
+            video: 'https://youtube.com/shorts/rG2SUbFuClw' },
+          { id: 'd2_az_2', nombre: 'Hollow Inverso', tiempo: '15"', series: 2, mic: "1'", mac: "1'", tipo: 'tiempo',
+            video: 'https://www.youtube.com/watch?v=CFPVWnTWbnU' },
+        ]
+      },
+      {
+        nombre: 'PARTE PRINCIPAL',
+        icono: '💪',
+        ejercicios: [
+          { id: 'd2_pp_1', nombre: 'Press de Pecho en Máquina',
+            series: 4, reps: 12, kg: '15', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://www.youtube.com/shorts/IDlSun5XbVc' },
+          { id: 'd2_pp_2', nombre: 'Press Francés en Polea Hacia Abajo',
+            series: 4, reps: 12, kg: '20/25', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtube.com/shorts/xQWMPDqyp34' },
+          { id: 'd2_pp_3', nombre: 'Jalón en Polea al Pecho Agarre Pronado',
+            series: 4, reps: 12, kg: '20/25', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtube.com/shorts/sAYU5EvtXSo' },
+          { id: 'd2_pp_4', nombre: 'Remo Neutro Hammer o Gironda',
+            series: 4, reps: 12, kg: '20/25', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtube.com/shorts/cbO9-Evf8ZE' },
+          { id: 'd2_pp_5', nombre: 'Curls Bíceps con Barra / Polea',
+            series: 4, reps: 12, kg: '20/25', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtube.com/shorts/OrX-n9r-WKM' },
+          { id: 'd2_pp_6', nombre: 'Vuelo Lateral con Mancuernas o en Polea',
+            series: 4, reps: 12, kg: '15', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtu.be/9H8tjBnie_w' },
+        ]
+      },
+      {
+        nombre: 'PARTE PRINCIPAL ABDOMINALES',
+        icono: '🎯',
+        ejercicios: [
+          { id: 'd2_ab_1', nombre: 'Rotación de Tronco en Polea / Banda / KTB',
+            series: 3, reps: 10, kg: '20', mic: "45\"/1'", mac: "2'", tipo: 'peso' },
+          { id: 'd2_ab_2', nombre: 'Plancha Alta', tiempo: '40"', series: 3, mic: "45\"/1'", mac: "2'", tipo: 'tiempo' },
+        ]
+      },
+    ]
+  },
+  3: {
+    titulo: 'DÍA 3',
+    grupo: 'TORSO, PIERNAS Y ABS',
+    secciones: [
+      {
+        nombre: 'ENTRADA EN CALOR',
+        icono: '🔥',
+        ejercicios: [
+          { id: 'd3_ec_1', nombre: 'Caminata o Bici', tiempo: "10'", tipo: 'tiempo' },
+          { id: 'd3_ec_2', nombre: 'Lubricación y Mov. Articular', tiempo: "5'", tipo: 'tiempo' },
+        ]
+      },
+      {
+        nombre: 'ACTIVACIÓN ZONA MEDIA',
+        icono: '⚡',
+        ejercicios: [
+          { id: 'd3_az_1', nombre: 'Hollow', tiempo: '15"', series: 2, mic: "1'", mac: "1'", tipo: 'tiempo',
+            video: 'https://youtube.com/shorts/rG2SUbFuClw' },
+          { id: 'd3_az_2', nombre: 'Hollow Inverso', tiempo: '15"', series: 2, mic: "1'", mac: "1'", tipo: 'tiempo',
+            video: 'https://www.youtube.com/watch?v=CFPVWnTWbnU' },
+        ]
+      },
+      {
+        nombre: 'PARTE PRINCIPAL',
+        icono: '💪',
+        ejercicios: [
+          { id: 'd3_pp_1', nombre: 'Puente de Glúteo en Suelo / Hip Thrust en Máquina/Banco',
+            series: 3, reps: 12, kg: '0', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtu.be/g58xAYch4dA' },
+          { id: 'd3_pp_2', nombre: 'Peso Muerto Rumano con Mancuernas',
+            series: 3, reps: 12, kg: '0', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtu.be/WQj81hgVHGA' },
+          { id: 'd3_pp_3', nombre: 'Banco de Cuádriceps',
+            series: 3, reps: 12, kg: '20', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://www.youtube.com/shorts/oQM875T39M4' },
+          { id: 'd3_pp_4', nombre: 'Press Inclinado en Máquina o Smith',
+            series: 3, reps: 12, kg: '15', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://www.youtube.com/shorts/stNaZQwZnHQ' },
+          { id: 'd3_pp_5', nombre: 'Press Francés en Polea Hacia Arriba',
+            series: 3, reps: 12, kg: '0', mic: "1'30\"", mac: "2'", tipo: 'peso' },
+          { id: 'd3_pp_6', nombre: 'Remo Neutro Hammer o Gironda',
+            series: 3, reps: 12, kg: '23', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtube.com/shorts/cbO9-Evf8ZE' },
+          { id: 'd3_pp_7', nombre: 'Curls Bíceps en Banco Inclinado con Mancuernas',
+            series: 3, reps: 12, kg: '15', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://www.youtube.com/shorts/koLVyY5pej0' },
+          { id: 'd3_pp_8', nombre: 'Vuelo Lateral con Mancuernas o en Polea',
+            series: 3, reps: 12, kg: '0', mic: "1'30\"", mac: "2'", tipo: 'peso',
+            video: 'https://youtu.be/9H8tjBnie_w' },
+        ]
+      },
+      {
+        nombre: 'PARTE PRINCIPAL ABDOMINALES',
+        icono: '🎯',
+        ejercicios: [
+          { id: 'd3_ab_1', nombre: 'Flexión de Tronco en Suelo / Encogimiento Acostado',
+            series: 3, reps: 10, mic: "1'", mac: "2'", tipo: 'series',
+            video: 'https://youtu.be/rEw9YIM8rmA' },
+          { id: 'd3_ab_2', nombre: 'Press Pallof Isométrico en Polea o con Banda',
+            tiempo: '30"', series: 3, mic: "45\"/1'", mac: "2'", tipo: 'tiempo' },
+        ]
+      },
+    ]
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════════
+
+function cargarPesos() { return JSON.parse(localStorage.getItem('adn_pesos') || '{}'); }
+function guardarPesos(p) { localStorage.setItem('adn_pesos', JSON.stringify(p)); }
+
+// ══════════════════════════════════════════════════════
+// NAVEGACIÓN
+// ══════════════════════════════════════════════════════
+
+let diaActual = null;
+
+function mostrarPantalla(id) {
+  document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+  document.getElementById(id).classList.add('activa');
+}
+
+function abrirDia(num) {
+  diaActual = num;
+  const dia = RUTINA[num];
+  document.getElementById('titulo-dia').textContent = dia.titulo;
+  document.getElementById('subtitulo-dia').textContent = dia.grupo;
+  renderDia(num);
+  mostrarPantalla('pantalla-dia');
+  document.querySelector('#pantalla-dia .contenido').scrollTop = 0;
+}
+
+function volverHome() {
+  mostrarPantalla('home');
+  diaActual = null;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+
+function renderDia(num) {
+  const dia = RUTINA[num];
+  const pesos = cargarPesos();
+  const contenido = document.getElementById('contenido-dia');
+  let html = '';
+
+  dia.secciones.forEach(seccion => {
+    html += `<div class="seccion-bloque">
+      <div class="seccion-header">${seccion.icono} ${seccion.nombre}</div>`;
+
+    seccion.ejercicios.forEach(ej => {
+      const nombreEscaped = ej.nombre.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+      html += `<div class="ejercicio-item">
+        <div class="ej-top">
+          <div class="ej-nombre">${ej.nombre}</div>`;
+
+      if (ej.video) {
+        html += `<a href="${ej.video}" target="_blank" rel="noopener noreferrer" class="btn-video" title="Ver video">▶</a>`;
+      }
+      html += `</div>
+        <div class="ej-meta">`;
+
+      // Tiempo clickeable si tiene tiempo y no es cero
+      if (ej.tiempo) {
+        const tiempoSeg = parsearTiempo(ej.tiempo);
+        if (tiempoSeg > 0) {
+          html += `<button class="meta-badge tiempo-clickeable" onclick="iniciarTimerEjercicio('${nombreEscaped}', ${tiempoSeg})">⏱ <span>${ej.tiempo}</span></button>`;
+        } else {
+          html += `<div class="meta-badge">⏱ <span>${ej.tiempo}</span></div>`;
+        }
+      }
+      if (ej.series) html += `<div class="meta-badge">Series: <span>${ej.series}</span></div>`;
+      if (ej.reps) html += `<div class="meta-badge">Reps: <span>${ej.reps}</span></div>`;
+      if (ej.mic) html += `<div class="meta-badge">MIC: <span>${ej.mic}</span></div>`;
+      if (ej.mac) html += `<div class="meta-badge">MAC: <span>${ej.mac}</span></div>`;
+
+      html += `</div>`;
+
+      // Controles de peso (uno o dos según el rango kg)
+      if (ej.tipo === 'peso' && ej.kg !== undefined) {
+        html += renderPesos(ej, pesos);
+      }
+
+      // Botones de descanso
+      if (ej.mic || ej.mac) {
+        html += `<div class="ej-timer-btns">`;
+        if (ej.mic) {
+          const micSeg = parsearTiempo(ej.mic);
+          html += `<button class="btn-descanso" onclick="iniciarTimerDesde('${nombreEscaped}', ${micSeg}, 'MIC')">⏱ MIC ${ej.mic}</button>`;
+        }
+        if (ej.mac) {
+          const macSeg = parsearTiempo(ej.mac);
+          html += `<button class="btn-descanso" onclick="iniciarTimerDesde('${nombreEscaped}', ${macSeg}, 'MAC')">⏱ MAC ${ej.mac}</button>`;
+        }
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  html += `<div style="height:100px;"></div>`;
+  contenido.innerHTML = html;
+}
+
+function renderPesos(ej, pesos) {
+  // Parsear rango de kg: "5/7.5" → dos controles, "15" → uno
+  const kgStr = String(ej.kg);
+  const partes = kgStr.split('/').map(x => x.trim());
+
+  if (partes.length === 2) {
+    // Dos rangos: Series 1-2 y Series 3-4
+    const id1 = ej.id + '_a';
+    const id2 = ej.id + '_b';
+    const sugerido1 = parseFloat(partes[0]) || 0;
+    const sugerido2 = parseFloat(partes[1]) || 0;
+    const val1 = pesos[id1] !== undefined ? pesos[id1] : sugerido1;
+    const val2 = pesos[id2] !== undefined ? pesos[id2] : sugerido2;
+
+    return `<div class="ej-pesos-wrapper">
+      <div class="ej-peso-row">
+        <div class="ej-peso-label"><strong>Series 1-2</strong>Sugerido: ${sugerido1}kg</div>
+        <div class="ej-peso-control">
+          <button class="btn-peso" onclick="cambiarPeso('${id1}', -2.5)">−</button>
+          <div class="peso-valor" id="peso-val-${id1}">${val1}</div>
+          <div class="peso-unidad">kg</div>
+          <button class="btn-peso" onclick="cambiarPeso('${id1}', 2.5)">+</button>
+        </div>
+      </div>
+      <div class="ej-peso-row">
+        <div class="ej-peso-label"><strong>Series 3-4</strong>Sugerido: ${sugerido2}kg</div>
+        <div class="ej-peso-control">
+          <button class="btn-peso" onclick="cambiarPeso('${id2}', -2.5)">−</button>
+          <div class="peso-valor" id="peso-val-${id2}">${val2}</div>
+          <div class="peso-unidad">kg</div>
+          <button class="btn-peso" onclick="cambiarPeso('${id2}', 2.5)">+</button>
+        </div>
+      </div>
+    </div>`;
+  } else {
+    // Un solo peso
+    const sugerido = parseFloat(partes[0]) || 0;
+    const val = pesos[ej.id] !== undefined ? pesos[ej.id] : sugerido;
+
+    return `<div class="ej-peso-row">
+      <div class="ej-peso-label"><strong>Peso</strong>Sugerido: ${sugerido}kg</div>
+      <div class="ej-peso-control">
+        <button class="btn-peso" onclick="cambiarPeso('${ej.id}', -2.5)">−</button>
+        <div class="peso-valor" id="peso-val-${ej.id}">${val}</div>
+        <div class="peso-unidad">kg</div>
+        <button class="btn-peso" onclick="cambiarPeso('${ej.id}', 2.5)">+</button>
+      </div>
+    </div>`;
+  }
+}
+
+function cambiarPeso(id, delta) {
+  const pesos = cargarPesos();
+  const actual = pesos[id] !== undefined ? pesos[id] : 0;
+  const nuevo = Math.max(0, Math.round((actual + delta) * 10) / 10);
+  pesos[id] = nuevo;
+  guardarPesos(pesos);
+  const el = document.getElementById(`peso-val-${id}`);
+  if (el) el.textContent = nuevo;
+}
+
+function parsearTiempo(str) {
+  if (!str) return 0;
+  const partes = str.toString().split('/');
+  const principal = partes[0].trim();
+  const min = principal.match(/(\d+)'/);
+  const seg = principal.match(/(\d+)"/);
+  const m = min ? parseInt(min[1]) : 0;
+  const s = seg ? parseInt(seg[1]) : 0;
+  return m * 60 + s;
+}
+
+// ══════════════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════════════
+
+let timerInterval = null;
+let timerSegundos = 0;
+let timerActivo = false;
+
+function iniciarTimerDesde(nombre, segundos, tipo) {
+  const nombreCorto = nombre.length > 28 ? nombre.substring(0,28) + '…' : nombre;
+  document.getElementById('timer-label').textContent = `${tipo} — ${nombreCorto.toUpperCase()}`;
+  iniciarTimer(segundos);
+}
+
+function iniciarTimerEjercicio(nombre, segundos) {
+  const nombreCorto = nombre.length > 28 ? nombre.substring(0,28) + '…' : nombre;
+  document.getElementById('timer-label').textContent = `EJERCICIO — ${nombreCorto.toUpperCase()}`;
+  iniciarTimer(segundos);
+}
+
+function iniciarTimer(segundos) {
+  if (timerInterval) clearInterval(timerInterval);
+  timerSegundos = segundos;
+  timerActivo = true;
+  document.getElementById('btn-pausar-timer').textContent = '⏸';
+  actualizarDisplayTimer();
+  document.getElementById('timer-flotante').classList.add('visible');
+  timerInterval = setInterval(() => {
+    if (!timerActivo) return;
+    timerSegundos--;
+    actualizarDisplayTimer();
+    if (timerSegundos <= 0) {
+      clearInterval(timerInterval);
+      timerActivo = false;
+      sonarAlarma();
+      const display = document.getElementById('timer-display');
+      display.classList.add('urgente');
+      display.textContent = '¡YA!';
+      setTimeout(() => {
+        display.classList.remove('urgente');
+        cerrarTimer();
+      }, 3000);
+    }
+  }, 1000);
+}
+
+function sumarTimer(extra) {
+  if (!timerActivo && timerSegundos <= 0) return;
+  timerSegundos += extra;
+  actualizarDisplayTimer();
+}
+
+function pausarTimer() {
+  timerActivo = !timerActivo;
+  document.getElementById('btn-pausar-timer').textContent = timerActivo ? '⏸' : '▶';
+}
+
+function actualizarDisplayTimer() {
+  const m = Math.floor(timerSegundos / 60);
+  const s = timerSegundos % 60;
+  const display = document.getElementById('timer-display');
+  display.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  display.classList.toggle('urgente', timerSegundos <= 10 && timerSegundos > 0);
+}
+
+function cerrarTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerActivo = false;
+  document.getElementById('timer-flotante').classList.remove('visible');
+  document.getElementById('timer-display').classList.remove('urgente');
+}
+
+function sonarAlarma() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(t => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.2);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.25);
+    });
+  } catch(e) {}
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+}
+
+// ══════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════
+
+let toastTimeout = null;
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('visible'), 2000);
+}
+</script>
+</body>
+</html>
