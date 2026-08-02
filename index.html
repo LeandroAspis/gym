@@ -195,12 +195,26 @@
     align-items: flex-start;
     gap: 8px;
   }
+  .ej-nombre-linea {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex: 1;
+    flex-wrap: wrap;
+  }
   .ej-nombre {
     font-size: 15px;
     font-weight: 600;
     color: var(--blanco);
     line-height: 1.3;
-    flex: 1;
+  }
+  .ej-series-reps {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--naranja);
+    letter-spacing: 1.5px;
+    line-height: 1;
+    white-space: nowrap;
   }
   .btn-video, a.btn-video {
     background: var(--naranja);
@@ -284,6 +298,20 @@
     display: flex; align-items: center; justify-content: center;
   }
   .btn-peso:active { background: var(--naranja); color: var(--negro); }
+  .btn-peso-mini {
+    background: transparent;
+    border: 1px solid var(--gris-borde);
+    border-radius: 6px;
+    color: var(--naranja);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 6px;
+    height: 30px;
+    min-width: 38px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-peso-mini:active { background: var(--naranja); color: var(--negro); border-color: var(--naranja); }
   .peso-valor {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 26px;
@@ -303,22 +331,35 @@
     margin-top: 2px;
   }
 
-  /* BOTONES DE DESCANSO */
-  .ej-timer-btns {
-    display: flex; gap: 6px; flex-wrap: wrap;
+  /* MIC / MAC — texto plano tocable */
+  .ej-descansos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 2px 0;
   }
   .btn-descanso {
-    background: var(--gris-borde);
-    border: none; border-radius: 8px;
+    background: transparent;
+    border: none;
     color: var(--blanco-suave);
-    font-size: 12px;
-    padding: 8px 14px;
+    font-size: 14px;
+    padding: 6px 0;
     cursor: pointer;
-    min-height: 38px;
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
+    text-align: left;
   }
-  .btn-descanso:active { background: var(--naranja); color: var(--negro); }
+  .btn-descanso strong {
+    color: var(--naranja);
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .btn-descanso:active { color: var(--naranja); }
+  .descanso-sep {
+    color: var(--gris-borde);
+    font-size: 14px;
+  }
 
   /* TIMER FLOTANTE */
   #timer-flotante {
@@ -707,47 +748,57 @@ function renderDia(num) {
     seccion.ejercicios.forEach(ej => {
       const nombreEscaped = ej.nombre.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
+      // Construir string series × reps
+      let seriesReps = '';
+      if (ej.series && ej.reps !== undefined && ej.reps !== 0 && ej.reps !== '') {
+        const reps = String(ej.reps).replace(/\s*a\s*/g, '-');
+        seriesReps = `${ej.series} × ${reps}`;
+      } else if (ej.series) {
+        seriesReps = `${ej.series} ${ej.series === 1 ? 'serie' : 'series'}`;
+      }
+
       html += `<div class="ejercicio-item">
         <div class="ej-top">
-          <div class="ej-nombre">${ej.nombre}</div>`;
+          <div class="ej-nombre-linea">
+            <div class="ej-nombre">${ej.nombre}</div>
+            ${seriesReps ? `<div class="ej-series-reps">${seriesReps}</div>` : ''}
+          </div>`;
 
       if (ej.video) {
         html += `<a href="${ej.video}" target="_blank" rel="noopener noreferrer" class="btn-video" title="Ver video">▶</a>`;
       }
-      html += `</div>
-        <div class="ej-meta">`;
+      html += `</div>`;
 
-      // Tiempo clickeable si tiene tiempo y no es cero
+      // Badge de tiempo (solo si tiene tiempo — sigue siendo clickeable con cara de botón porque abre el timer del ejercicio)
       if (ej.tiempo) {
         const tiempoSeg = parsearTiempo(ej.tiempo);
+        html += `<div class="ej-meta">`;
         if (tiempoSeg > 0) {
           html += `<button class="meta-badge tiempo-clickeable" onclick="iniciarTimerEjercicio('${nombreEscaped}', ${tiempoSeg})">⏱ <span>${ej.tiempo}</span></button>`;
         } else {
           html += `<div class="meta-badge">⏱ <span>${ej.tiempo}</span></div>`;
         }
+        html += `</div>`;
       }
-      if (ej.series) html += `<div class="meta-badge">Series: <span>${ej.series}</span></div>`;
-      if (ej.reps) html += `<div class="meta-badge">Reps: <span>${ej.reps}</span></div>`;
-      if (ej.mic) html += `<div class="meta-badge">MIC: <span>${ej.mic}</span></div>`;
-      if (ej.mac) html += `<div class="meta-badge">MAC: <span>${ej.mac}</span></div>`;
-
-      html += `</div>`;
 
       // Controles de peso (uno o dos según el rango kg)
       if (ej.tipo === 'peso' && ej.kg !== undefined) {
         html += renderPesos(ej, pesos);
       }
 
-      // Botones de descanso
+      // MIC / MAC como texto plano tocable
       if (ej.mic || ej.mac) {
-        html += `<div class="ej-timer-btns">`;
+        html += `<div class="ej-descansos">`;
         if (ej.mic) {
           const micSeg = parsearTiempo(ej.mic);
-          html += `<button class="btn-descanso" onclick="iniciarTimerDesde('${nombreEscaped}', ${micSeg}, 'MIC')">⏱ MIC ${ej.mic}</button>`;
+          html += `<button class="btn-descanso" onclick="iniciarTimerDesde('${nombreEscaped}', ${micSeg}, 'MIC')">⏱ <strong>MIC</strong> ${ej.mic}</button>`;
+        }
+        if (ej.mic && ej.mac) {
+          html += `<span class="descanso-sep">·</span>`;
         }
         if (ej.mac) {
           const macSeg = parsearTiempo(ej.mac);
-          html += `<button class="btn-descanso" onclick="iniciarTimerDesde('${nombreEscaped}', ${macSeg}, 'MAC')">⏱ MAC ${ej.mac}</button>`;
+          html += `<button class="btn-descanso" onclick="iniciarTimerDesde('${nombreEscaped}', ${macSeg}, 'MAC')">⏱ <strong>MAC</strong> ${ej.mac}</button>`;
         }
         html += `</div>`;
       }
@@ -781,8 +832,10 @@ function renderPesos(ej, pesos) {
         <div class="ej-peso-label"><strong>Series 1-2</strong>Sugerido: ${sugerido1}kg</div>
         <div class="ej-peso-control">
           <button class="btn-peso" onclick="cambiarPeso('${id1}', -2.5)">−</button>
+          <button class="btn-peso-mini" onclick="cambiarPeso('${id1}', -0.5)">−0.5</button>
           <div class="peso-valor" id="peso-val-${id1}">${val1}</div>
           <div class="peso-unidad">kg</div>
+          <button class="btn-peso-mini" onclick="cambiarPeso('${id1}', 0.5)">+0.5</button>
           <button class="btn-peso" onclick="cambiarPeso('${id1}', 2.5)">+</button>
         </div>
       </div>
@@ -790,8 +843,10 @@ function renderPesos(ej, pesos) {
         <div class="ej-peso-label"><strong>Series 3-4</strong>Sugerido: ${sugerido2}kg</div>
         <div class="ej-peso-control">
           <button class="btn-peso" onclick="cambiarPeso('${id2}', -2.5)">−</button>
+          <button class="btn-peso-mini" onclick="cambiarPeso('${id2}', -0.5)">−0.5</button>
           <div class="peso-valor" id="peso-val-${id2}">${val2}</div>
           <div class="peso-unidad">kg</div>
+          <button class="btn-peso-mini" onclick="cambiarPeso('${id2}', 0.5)">+0.5</button>
           <button class="btn-peso" onclick="cambiarPeso('${id2}', 2.5)">+</button>
         </div>
       </div>
@@ -805,8 +860,10 @@ function renderPesos(ej, pesos) {
       <div class="ej-peso-label"><strong>Peso</strong>Sugerido: ${sugerido}kg</div>
       <div class="ej-peso-control">
         <button class="btn-peso" onclick="cambiarPeso('${ej.id}', -2.5)">−</button>
+        <button class="btn-peso-mini" onclick="cambiarPeso('${ej.id}', -0.5)">−0.5</button>
         <div class="peso-valor" id="peso-val-${ej.id}">${val}</div>
         <div class="peso-unidad">kg</div>
+        <button class="btn-peso-mini" onclick="cambiarPeso('${ej.id}', 0.5)">+0.5</button>
         <button class="btn-peso" onclick="cambiarPeso('${ej.id}', 2.5)">+</button>
       </div>
     </div>`;
