@@ -82,31 +82,6 @@
   }
 
   /* HOME */
-  #home .banner {
-    background: linear-gradient(135deg, var(--gris-oscuro) 0%, #1a1000 100%);
-    padding: 24px 20px;
-    border-bottom: 1px solid var(--gris-borde);
-  }
-  #home .saludo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 38px;
-    letter-spacing: 2px;
-    color: var(--blanco);
-    line-height: 1;
-  }
-  #home .saludo span { color: var(--naranja); }
-  #home .info-atleta {
-    display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;
-  }
-  .chip {
-    background: var(--gris-borde);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--blanco-suave);
-  }
-  .chip strong { color: var(--naranja); }
-
   .dias-lista {
     padding: 20px 16px;
     display: flex; flex-direction: column;
@@ -154,15 +129,6 @@
     color: var(--naranja);
     font-size: 24px;
     opacity: 0.6;
-  }
-
-  .seccion-titulo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 2px;
-    color: var(--naranja);
-    padding: 20px 16px 10px;
-    text-transform: uppercase;
   }
 
   /* SECCIÓN DE EJERCICIOS */
@@ -436,24 +402,7 @@
 
 <!-- ══════════════════════ PANTALLA HOME ══════════════════════ -->
 <div id="home" class="pantalla activa">
-  <div class="header">
-    <div>
-      <div class="header-titulo">ADN TRAINING</div>
-      <div class="header-sub">Leandro Aspis</div>
-    </div>
-    <div style="min-width:44px;"></div>
-  </div>
   <div class="contenido">
-    <div class="banner">
-      <div class="saludo">HOLA, <span>LEANDRO</span></div>
-      <div class="info-atleta">
-        <div class="chip">Ganancia de masa muscular</div>
-        <div class="chip"><strong>89</strong> kg</div>
-        <div class="chip"><strong>1.87</strong> m</div>
-      </div>
-    </div>
-
-    <div class="seccion-titulo">ELEGÍ TU DÍA</div>
     <div class="dias-lista">
       <div class="dia-card" onclick="abrirDia(1)">
         <div class="dia-num">1</div>
